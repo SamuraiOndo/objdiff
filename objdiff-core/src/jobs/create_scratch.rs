@@ -2,6 +2,7 @@ use std::{fs, sync::mpsc::Receiver, task::Waker};
 
 use anyhow::{Context, Result, anyhow, bail};
 use typed_path::{Utf8PlatformPathBuf, Utf8UnixPathBuf};
+use crate::diff::Demangler;
 
 use crate::{
     build::{BuildConfig, BuildStatus, run_make},
@@ -74,7 +75,8 @@ fn run_create_scratch(
         .text("diff_label", config.function_name.clone())
         .text("diff_flags", diff_flags)
         .text("context", context.unwrap_or_default())
-        .text("source_code", "// Move related code from Context tab to here");
+        .text("source_code", "// Move related code from Context tab to here")
+        .text("name", Demangler::Auto.demangle(&config.function_name).unwrap_or_else(|| config.function_name.clone()),);
     if let Some(preset) = config.preset_id {
         form = form.text("preset", preset.to_string());
     }
